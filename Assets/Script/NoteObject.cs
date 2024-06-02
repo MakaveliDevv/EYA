@@ -6,23 +6,39 @@ public class NoteObject : MonoBehaviour
 {
     public bool canBePressed;
     public KeyCode keyToPress;
-    // Start is called before the first frame update
-    // void Start()
-    // {
-        
-    // }
-
-    // // Update is called once per frame
+    private bool noteHit;  // Add this flag
+    public GameObject hitEffect, goodEffect, perfectEffect, missEffect;
+ 
     void Update()
     {
         if(Input.GetKeyDown(keyToPress))
         {
             if(canBePressed)
             {
+                noteHit = true;  // Set the flag to true when the note is hit|
                 gameObject.SetActive(false);
+                // GameManager.instance.NoteHit();
+
+                if(Mathf.Abs(transform.position.y) > .25) 
+                {
+                    GameManager.instance.NormalHit();
+                    Instantiate(hitEffect, transform.position, hitEffect.transform.rotation);
+                    Debug.Log("Hit");
+                }
+                else if(Mathf.Abs(transform.position.y) > .05f)
+                {
+                    GameManager.instance.GoodHit();
+                    Instantiate(goodEffect, transform.position, goodEffect.transform.rotation);
+                    Debug.Log("Good Hit");
+                }
+                else 
+                {
+                    GameManager.instance.PerfectHit();
+                    Instantiate(perfectEffect, transform.position, perfectEffect.transform.rotation);
+                    Debug.Log("Perfect Hit");
+                }
             }
         }
-        
     }
 
     void OnTriggerEnter2D(Collider2D other)
@@ -30,7 +46,7 @@ public class NoteObject : MonoBehaviour
         if(other.CompareTag("Activator"))
         {
             canBePressed = true;
-            Debug.Log("CanBePressed");
+            // Debug.Log("CanBePressed");
         }
     }
 
@@ -38,7 +54,13 @@ public class NoteObject : MonoBehaviour
     {
         if(other.CompareTag("Activator"))
         {
-            canBePressed = false;
+            if(!noteHit)
+            {
+                canBePressed = false;
+                // Debug.Log("CannotBePressed");
+                GameManager.instance.NoteMissed();
+                Instantiate(missEffect, transform.position, missEffect.transform.rotation);
+            }
         }
     }
 }
